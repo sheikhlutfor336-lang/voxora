@@ -1,1 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b0f19">
+  <meta name="description" content="Voxora - Voice, Music, Radio and AI Browser">
 
+  <title>Voxora</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: auto;
+      min-height: 100vh;
+      padding-bottom: 90px;
+    }
+
+    /* Header */
+    header {
+      padding: 22px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .logo span {
+      color: #7c5cff;
+    }
+
+    .status {
+      font-size: 12px;
+      color: #8f98aa;
+    }
+
+    /* Search */
+    .search-box {
+      margin: 15px 20px;
+      background: #171d2b;
+      border: 1px solid #252d3e;
+      border-radius: 18px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-box input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 15px;
+    }
+
+    .search-box button {
+      background: #7c5cff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 9px 13px;
+      font-weight: bold;
+    }
+
+    /* Voice */
+    .voice-area {
+      text-align: center;
+      padding: 30px 20px 25px;
+    }
+
+    .voice-button {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(145deg, #7c5cff, #4b2fd1);
+      color: white;
+      font-size: 55px;
+      box-shadow: 0 0 45px rgba(124, 92, 255, 0.35);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .voice-button:active {
+      transform: scale(0.94);
+    }
+
+    .voice-button.listening {
+      animation: pulse 1.2s infinite;
+      background: linear-gradient(145deg, #ff4d7d, #c72555);
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 77, 125, 0.6);
+      }
+
+      70% {
+        box-shadow: 0 0 0 28px rgba(255, 77, 125, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 77, 125, 0);
+      }
+    }
+
+    .voice-title {
+      margin-top: 18px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .voice-subtitle {
+      margin-top: 7px;
+      color: #8f98aa;
+      font-size: 13px;
+    }
+
+    /* Result */
+    .result {
+      margin: 0 20px 20px;
+      padding: 16px;
+      background: #121826;
+      border: 1px solid #252d3e;
+      border-radius: 16px;
+      min-height: 70px;
+    }
+
+    .result-label {
+      color: #7c5cff;
+      font-size: 12px;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    #resultText {
+      color: #e8ebf2;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* Cards */
+    .section-title {
+      margin: 25px 20px 12px;
+      font-size: 18px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: #151b29;
+      border: 1px solid #252d3e;
+      border-radius: 18px;
+      padding: 20px 15px;
+      min-height: 115px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .card:active {
+      transform: scale(0.97);
+    }
+
+    .card-icon {
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .card-text {
+      color: #8f98aa;
+      font-size: 11px;
+      margin-top: 5px;
+    }
+
+    /* Player */
+    .player {
+      margin: 25px 20px;
+      background: linear-gradient(135deg, #171e30, #111624);
+      border: 1px solid #292f42;
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .player-top {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .album {
+      width: 58px;
+      height: 58px;
+      border-radius: 15px;
+      background: linear-gradient(135deg, #7c5cff, #ff4d7d);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 25px;
+    }
+
+    .song-name {
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .artist {
+      color: #8f98aa;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .player-controls {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 20px;
+    }
+
+    .control {
+      width: 43px;
+      height: 43px;
+      border-radius: 50%;
+      border: none;
+      background: #242b3c;
+      color: white;
+      font-size: 18px;
+    }
+
+    .play {
+      background: #7c5cff;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
+      height: 72px;
+      background: rgba(12, 16, 27, 0.96);
+      border-top: 1px solid #252d3e;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .nav-item {
+      text-align: center;
+      color: #7f8899;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item.active {
+      color: #7c5cff;
+    }
+
+    /* Message */
+    #message {
+      text-align: center;
+      color: #8f98aa;
+      font-size: 12px;
+      margin: 10px 20px;
+      min-height: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <!-- Header -->
+    <header>
+      <div class="logo">Vox<span>ora</span></div>
+      <div class="status">● Ready</div>
+    </header>
+
+    <!-- Search -->
+    <div class="search-box">
+      <input
+        id="searchInput"
+        type="text"
+        placeholder="Search or ask anything..."
+      >
+      <button onclick="searchWeb()">Search</button>
+    </div>
+
+    <!-- Voice -->
+    <section class="voice-area">
+
+      <button
+        id="voiceButton"
+        class="voice-button"
+        onclick="startVoice()"
+        aria-label="Talk"
+      >
+        🎙️
+      </button>
+
+      <div class="voice-title">Tap to Talk</div>
+
+      <div class="voice-subtitle">
+        Speak naturally with Voxora
+      </div>
+
+    </section>
+
+    <!-- Voice Result -->
+    <div class="result">
+
+      <div class="result-label">
+        VOXORA
+      </div>
+
+      <div id="resultText">
+        Hello! I am ready. Tap the microphone and speak.
+      </div>
+
+    </div>
+
+    <div id="message"></div>
+
+    <!-- Features -->
+    <div class="section-title">
+      Explore
+    </div>
+
+    <div class="cards">
+
+      <div class="card" onclick="showMessage('Music section is ready for the next stage.')">
+        <div class="card-icon">🎵</div>
+        <div class="card-title">Music</div>
+        <div class="card-text">Listen to music</div>
+      </div>
+
+      <div class="card" onclick="showMessage('Radio section is ready for the next stage.')">
+        <div class="card-icon">📻</div>
+        <div class="card-title">Radio</div>
+        <div class="card-text">Live radio experience</div>
+      </div>
+
+      <div class="card" onclick="showMessage('Web browser is ready for the next stage.')">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Web</div>
+        <div class="card-text">Browse the internet</div>
+      </div>
+
+      <div class="card" onclick="startVoice()">
+        <div class="card-icon">🤖</div>
+        <div class="card-title">AI Talk</div>
+        <div class="card-text">Voice assistant</div>
+      </div>
+
+    </div>
+
+    <!-- Music Player -->
+    <div class="player">
+
+      <div class="player-top">
+
+        <div class="album">
+          🎵
+        </div>
+
+        <div>
+          <div class="song-name">
+            Voxora Radio
+          </div>
+
+          <div class="artist">
+            Ready to play
+          </div>
+        </div>
+
+      </div>
+
+      <div class="player-controls">
+
+        <button class="control" onclick="showMessage('Previous track')">
+          ⏮
+        </button>
+
+        <button
+          class="control play"
+          onclick="showMessage('Music player will be connected in the next stage.')"
+        >
+          ▶
+        </button>
+
+        <button class="control" onclick="showMessage('Next track')">
+          ⏭
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <div class="nav-item active" onclick="showMessage('Home')">
+      <div class="nav-icon">🏠</div>
+      Home
+    </div>
+
+    <div class="nav-item" onclick="showMessage('Radio')">
+      <div class="nav-icon">📻</div>
+      Radio
+    </div>
+
+    <div class="nav-item" onclick="startVoice()">
+      <div class="nav-icon">🎙️</div>
+      Talk
+    </div>
+
+    <div class="nav-item" onclick="showMessage('Music')">
+      <div class="nav-icon">🎵</div>
+      Music
+    </div>
+
+    <div class="nav-item" onclick="showMessage('Settings')">
+      <div class="nav-icon">⚙️</div>
+      Settings
+    </div>
+
+  </nav>
+
+  <script>
+
+    const resultText = document.getElementById("resultText");
+    const voiceButton = document.getElementById("voiceButton");
+    const message = document.getElementById("message");
+
+    let recognition;
+
+    /*
+      Voice Recognition
+    */
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+
+      recognition = new SpeechRecognition();
+
+      recognition.lang = "bn-BD";
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onstart = function () {
+
+        voiceButton.classList.add("listening");
+
+        resultText.textContent =
+          "আমি শুনছি... কথা বলুন।";
+
+        message.textContent =
+          "🎙️ Listening...";
+
+      };
+
+      recognition.onresult = function (event) {
+
+        const text =
+          event.results[0][0].transcript;
+
+        resultText.textContent =
+          "আপনি বলেছেন: " + text;
+
+        message.textContent =
+          "আপনার কথা পাওয়া গেছে।";
+
+        speak(
+          "আপনি বলেছেন " + text
+        );
+
+      };
+
+      recognition.onerror = function () {
+
+        message.textContent =
+          "Microphone বা voice recognition চালু করা যায়নি।";
+
+      };
+
+      recognition.onend = function () {
+
+        voiceButton.classList.remove("listening");
+
+      };
+
+    }
+
+    function startVoice() {
+
+      if (!recognition) {
+
+        resultText.textContent =
+          "এই browser-এ Voice Recognition support পাওয়া যায়নি।";
+
+        return;
+
+      }
+
+      try {
+
+        recognition.start();
+
+      } catch (error) {
+
+        message.textContent =
+          "Voice system already active.";
+
+      }
+
+    }
+
+    /*
+      Text to Speech
+    */
+
+    function speak(text) {
+
+      if (!("speechSynthesis" in window)) {
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const speech =
+        new SpeechSynthesisUtterance(text);
+
+      speech.lang = "bn-BD";
+      speech.rate = 0.95;
+      speech.pitch = 1;
+
+      window.speechSynthesis.speak(speech);
+
+    }
+
+    /*
+      Web Search
+    */
+
+    function searchWeb() {
+
+      const query =
+        document.getElementById("searchInput").value.trim();
+
+      if (!query) {
+
+        showMessage("কিছু লিখে Search করুন।");
+
+        return;
+
+      }
+
+      window.location.href =
+        "https://www.google.com/search?q=" +
+        encodeURIComponent(query);
+
+    }
+
+    /*
+      Message
+    */
+
+    function showMessage(text) {
+
+      message.textContent = text;
+
+      setTimeout(function () {
+
+        message.textContent = "";
+
+      }, 3000);
+
+    }
+
+  </script>
+
+</body>
+</html>
